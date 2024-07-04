@@ -17,4 +17,20 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_equal @user.email, json_response["email"]
   end
 
+  test "사용자를 신규로 생성할 수 있다" do
+    assert_difference('User.count') do
+      post api_v1_users_url, params: { user: { email: 'shine@naver.org', password: '123456' } }, as: :json
+    end
+
+    assert_response :created
+  end
+
+  test "이미 등록된 이메일로는 사용자를 생성할 수 없다" do
+    assert_no_difference('User.count') do
+      post api_v1_users_url, params: { user: { email: @user.email, password: '123456' } }, as: :json
+    end
+
+    assert_response :unprocessable_entity
+  end
+
 end
