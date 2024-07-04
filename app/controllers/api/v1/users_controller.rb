@@ -1,8 +1,9 @@
 class Api::V1::UsersController < ApplicationController
 
+  before_action :set_user, only: %i[show update]
+
   def show
-    find_user = User.find(params[:id])
-    render json: find_user, serializer: Api::V1::UserDetailSerializer
+    render json: @user, serializer: Api::V1::UserDetailSerializer
   end
 
   def create
@@ -13,6 +14,18 @@ class Api::V1::UsersController < ApplicationController
     end
 
     render json: @new_user.errors, status: :unprocessable_entity
+  end
+
+  def update
+    if @user.update(user_params)
+      render json: @user, status: :ok
+    else
+      render json: @user.errors, status: :unprocessable_entity
+    end
+  end
+
+  def set_user
+    @user = User.find(params[:id])
   end
 
   private def user_params
