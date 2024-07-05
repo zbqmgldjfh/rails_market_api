@@ -57,4 +57,11 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "사용자를 삭제할 수 있다" do
+    assert_difference('User.count', -1) do
+      delete api_v1_user_url(@user), as: :json
+    end
+
+    assert_response :no_content
+  end
 end
