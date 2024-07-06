@@ -25,4 +25,9 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.valid?
   end
 
+  test "사용자가 삭제되면 연관된 상품도 모두 삭제되어야 한다" do
+    assert_difference("Product.count", -1) do
+      users(:one).destroy
+    end
+  end
 end
