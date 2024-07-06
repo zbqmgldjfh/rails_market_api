@@ -13,8 +13,7 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
 
     json_response = JSON.parse(self.response.body)
     print json_response
-    assert_instance_of Integer, json_response["id"]
-    assert_equal @user.email, json_response["email"]
+    assert_equal @user.email, json_response['data'][ 'attributes']['email']
   end
 
   test "사용자를 신규로 생성할 수 있다" do
