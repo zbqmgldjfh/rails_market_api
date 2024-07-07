@@ -16,4 +16,17 @@ class OrderTest < ActiveSupport::TestCase
 
     assert_equal (@product1.price + @product2.price), order.total
   end
+
+  test "주문을 위한 placements 2개를 생성한다" do
+    @order.build_placements_with_product_ids_and_quantities(
+    [
+      { product_id: @product1.id, quantity: 2 },
+      { product_id: @product2.id, quantity: 3 },
+    ])
+
+    assert_difference('Placement.count', 2) do
+      @order.save
+    end
+  end
+
 end

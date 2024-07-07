@@ -17,17 +17,18 @@ class Api::V1::OrdersController < ApplicationController
   end
 
   def create
-    new_order = current_user.orders.build(order_params)
+    order = Order.create!(user: current_user)
+    order.build_placements_with_product_ids_and_quantities(order_params[:product_ids_and_quantities])
 
-    if new_order.save
-      render json: new_order, status: 201
+    if order.save
+      render json: order, status: :created
     else
-      render json: { errors: new_order.errors }, status: 422
+      render json: { errors: order.errors }, status: :unprocessable_entity
     end
   end
 
   private def order_params
-    params.require(:order).permit(:total, product_ids: [])
+    params.require(:order).permit(product_ids_and_quantities: [:product_id, :quantity])
   end
 
   private def check_login

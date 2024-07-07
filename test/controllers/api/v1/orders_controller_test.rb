@@ -5,9 +5,14 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
   setup do
     @order = orders(:one)
 
-    @order_params = { order: {
-      product_ids: [products(:one).id, products(:two).id], total: 50
-    }}
+    @order_params = {
+      order: {
+        product_ids_and_quantities: [
+          { product_id: products(:one).id, quantity: 2 },
+          { product_id: products(:two).id, quantity: 3 },
+        ]
+      }
+    }
   end
 
   test "토큰이 없는 사용자의 주문 확인 요청은 거부한다" do
@@ -52,6 +57,19 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
            headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },
            params: @order_params,
            as: :json
+    end
+
+    assert_response :created
+  end
+
+  test "n개의 상품과 placement로 주문을 생성할 수 있다" do
+    assert_difference("Order.count", 1) do
+      assert_difference("Placement.count", 2) do
+        post api_v1_orders_url,
+             headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },
+             params: @order_params,
+             as: :json
+      end
     end
 
     assert_response :created
