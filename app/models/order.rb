@@ -1,10 +1,12 @@
 class Order < ApplicationRecord
-  before_validation :calculate_total!
+  include ActiveModel::Validations
 
-  belongs_to :user
+  before_validation :calculate_total!
   validates :total, numericality: { greater_than_or_equal_to: 0 }
   validates :total, presence: true
+  validates_with EnoughProductsValidator
 
+  belongs_to :user
   has_many :placements, dependent: :destroy
   has_many :products, through: :placements
 

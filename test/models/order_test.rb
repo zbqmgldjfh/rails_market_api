@@ -29,4 +29,10 @@ class OrderTest < ActiveSupport::TestCase
     end
   end
 
+  test "주문 수량이 남은 제고량보다는 작거나 같아야한다" do
+    @order.placements << Placement.new(product_id: @product1 .id, quantity: (1 + @product1.quantity))
+
+    assert_not @order.valid?
+  end
+
 end
