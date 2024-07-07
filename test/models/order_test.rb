@@ -8,29 +8,31 @@ class OrderTest < ActiveSupport::TestCase
     @product2 = products(:two)
   end
 
-  test "총액을 성공적으로 저장한다" do
-    order = Order.new(user_id: @order.user_id)
-    order.add_product(products(:one))
-    order.add_product(products(:two))
-    order.save
-
-    assert_equal (@product1.price + @product2.price), order.total
-  end
-
   test "주문을 위한 placements 2개를 생성한다" do
     @order.build_placements_with_product_ids_and_quantities(
-    [
-      { product_id: @product1.id, quantity: 2 },
-      { product_id: @product2.id, quantity: 3 },
-    ])
+      [
+        { product_id: @product1.id, quantity: 2 },
+        { product_id: @product2.id, quantity: 3 },
+      ])
 
     assert_difference('Placement.count', 2) do
       @order.save
     end
   end
 
+  test "총액을 구할때 수량또한 반영한다" do
+    @order.placements = [
+      Placement.new(product_id: @product1.id, quantity: 2),
+      Placement.new(product_id: @product2.id, quantity: 2)
+    ]
+
+    @order.calculate_total!
+    expected_total = (@product1.price * 2) + (@product2.price * 2)
+    assert_equal expected_total, @order.total
+  end
+
   test "주문 수량이 남은 제고량보다는 작거나 같아야한다" do
-    @order.placements << Placement.new(product_id: @product1 .id, quantity: (1 + @product1.quantity))
+    @order.placements << Placement.new(product_id: @product1.id, quantity: (1 + @product1.quantity))
 
     assert_not @order.valid?
   end
