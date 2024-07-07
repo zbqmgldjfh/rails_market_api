@@ -8,6 +8,12 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
   test "상품 목록을 조회한다" do
     get api_v1_products_url, as: :json
     assert_response :success
+
+    json_response = JSON.parse(response.body, symbolize_names: true)
+    assert_not_nil json_response.dig(:links, :first)
+    assert_not_nil json_response.dig(:links, :last)
+    assert_not_nil json_response.dig(:links, :prev)
+    assert_not_nil json_response.dig(:links, :next)
   end
 
   test "특정 상품 하나를 조회한다" do
@@ -80,4 +86,5 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :forbidden
   end
+
 end
